@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EquityLens — Stock Analysis Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">EquityLens</span>
+      <span class="logo-tag">v3.2</span>
+    </div>
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="globalSearch" placeholder="Search ticker, name, or sector…  ⌘K">
+    </div>
+    <div class="header-meta">
+      <span class="meta-date" id="headerDate"></span>
+      <span class="meta-badge">Live Data Snapshot</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ MARKET OVERVIEW ═══════════════ -->
+<section class="section market-overview">
+  <h2 class="section-title">Market Overview</h2>
+  <div class="indices-grid" id="indicesGrid"></div>
+</section>
+
+<!-- ═══════════════ INSIGHT WIDGETS ═══════════════ -->
+<section class="section insights-row">
+  <!-- Sentiment Gauge -->
+  <div class="insight-card sentiment-card">
+    <h3>Market Sentiment</h3>
+    <div class="gauge-wrap">
+      <div class="gauge-labels"><span>Fear</span><span>Neutral</span><span>Greed</span></div>
+      <div class="gauge-track">
+        <div class="gauge-fill" id="gaugeFill"></div>
+      </div>
+      <p class="gauge-reading">62 — <em>Greed</em></p>
+    </div>
+  </div>
+
+  <!-- Top Movers -->
+  <div class="insight-card movers-card">
+    <h3>Top Movers Today</h3>
+    <div id="topMoversList" class="movers-list"></div>
+  </div>
+
+  <!-- Scoring Framework -->
+  <div class="insight-card scoring-card">
+    <h3>Scoring Framework <span class="tag-sm">v3.2</span></h3>
+    <div id="scoringBreakdown" class="scoring-breakdown"></div>
+    <div class="scoring-legend">
+      <span class="leg-item"><span class="leg-dot" style="background:var(--green)"></span>Strong Buy ≥75</span>
+      <span class="leg-item"><span class="leg-dot" style="background:var(--blue)"></span>Buy ≥60</span>
+      <span class="leg-item"><span class="leg-dot" style="background:var(--yellow)"></span>Watch ≥40</span>
+      <span class="leg-item"><span class="leg-dot" style="background:var(--red)"></span>Avoid &lt;40</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTOR PERFORMANCE ═══════════════ -->
+<section class="section sector-section">
+  <h2 class="section-title">Sector Performance <span class="title-sub">30-Day Return</span></h2>
+  <div class="sector-bars" id="sectorBars"></div>
+</section>
+
+<!-- ═══════════════ FILTERS & VIEW TOGGLE ═══════════════ -->
+<section class="section controls-row">
+  <div class="filters">
+    <div class="filter-group">
+      <label>Sector</label>
+      <select id="filterSector"><option value="all">All Sectors</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Recommendation</label>
+      <select id="filterRecommendation">
+        <option value="all">All</option>
+        <option value="Strong Buy">Strong Buy</option>
+        <option value="Buy">Buy</option>
+        <option value="Watch">Watch</option>
+        <option value="Avoid">Avoid</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Min Score: <span id="filterMinScoreVal">0</span></label>
+      <input type="range" id="filterMinScore" min="0" max="100" value="0">
+    </div>
+    <div class="filter-group">
+      <label>Market Cap</label>
+      <select id="filterCap">
+        <option value="all">All</option>
+        <option value="mega">Mega (&gt;$200B)</option>
+        <option value="large">Large ($10-200B)</option>
+        <option value="mid">Mid (&lt;$10B)</option>
+      </select>
+    </div>
+  </div>
+  <div class="view-toggle">
+    <span id="resultsCount" class="results-count">15 stocks</span>
+    <button id="viewTable" class="vt-btn active" title="Table View">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+    </button>
+    <button id="viewCards" class="vt-btn" title="Card View">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════ STOCK TABLE ═══════════════ -->
+<section class="section" id="tableView">
+  <div class="table-wrap">
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="sortable" data-sort="ticker">Ticker</th>
+          <th class="sortable" data-sort="name">Company</th>
+          <th class="sortable" data-sort="sector">Sector</th>
+          <th class="sortable" data-sort="price">Price</th>
+          <th class="sortable" data-sort="change">Chg %</th>
+          <th class="sortable" data-sort="marketCap">Mkt Cap</th>
+          <th class="sortable" data-sort="pe">P/E</th>
+          <th class="sortable" data-sort="revenueGrowth">Rev Gr</th>
+          <th class="sortable" data-sort="score">Score</th>
+          <th class="sortable" data-sort="recommendation">Rating</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="stockTableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ STOCK CARDS ═══════════════ -->
+<section class="section hidden" id="cardsView">
+  <div class="stock-cards-grid" id="stockCardsGrid"></div>
+</section>
+
+<!-- ═══════════════ STOCK DETAIL DRAWER ═══════════════ -->
+<div class="drawer-overlay hidden" id="drawerOverlay"></div>
+<aside class="stock-drawer hidden" id="stockDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title-row">
+      <div>
+        <h2 id="drawerTicker"></h2>
+        <p id="drawerName"></p>
+      </div>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <div class="drawer-price-row">
+      <span class="drawer-price" id="drawerPrice"></span>
+      <span class="drawer-change" id="drawerChange"></span>
+    </div>
+    <div id="drawerRecommendation"></div>
+  </div>
+
+  <div class="drawer-body">
+    <!-- Score Breakdown -->
+    <div class="drawer-section">
+      <h3>Score Breakdown</h3>
+      <div class="drawer-overall-score">
+        <div class="overall-bar-bg">
+          <div class="overall-bar-fill" id="drawerScoreBar"></div>
+        </div>
+        <span class="overall-num" id="drawerScoreNumber"></span>
+      </div>
+      <div id="drawerScoreRadar" class="radar-grid"></div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="drawer-section">
+      <h3>Key Metrics</h3>
+      <div class="metric-grid" id="drawerMetrics"></div>
+    </div>
+
+    <!-- Financial Health -->
+    <div class="drawer-section">
+      <h3>Financial Health</h3>
+      <div class="metric-grid" id="drawerFinancials"></div>
+    </div>
+
+    <!-- Technicals -->
+    <div class="drawer-section">
+      <h3>Technical Indicators</h3>
+      <div class="metric-grid" id="drawerTechnicals"></div>
+    </div>
+
+    <!-- Catalysts & Risks -->
+    <div class="drawer-section two-col">
+      <div class="cat-col">
+        <h3>🚀 Catalysts</h3>
+        <ul class="cat-list" id="drawerCatalysts"></ul>
+      </div>
+      <div class="risk-col">
+        <h3>⚠️ Risks</h3>
+        <ul class="risk-list" id="drawerRisks"></ul>
+      </div>
+    </div>
+
+    <!-- Bull / Bear -->
+    <div class="drawer-section bull-bear-row">
+      <div class="bb-card bull">
+        <h4>🐂 Bull Case</h4>
+        <p id="drawerBull"></p>
+      </div>
+      <div class="bb-card bear">
+        <h4>🐻 Bear Case</h4>
+        <p id="drawerBear"></p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+  <p>EquityLens v3.2 — Transparent Weighted Scoring Framework · Data snapshot as of <span id="footerDate"></span></p>
+  <p class="disclaimer">For educational and research purposes only. Not financial advice.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="scoring.js"></script>
+<script src="app.js"></script>
+<script>
+  const now = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('headerDate').textContent = now;
+  document.getElementById('footerDate').textContent = now;
+</script>
+</body>
+</html>
