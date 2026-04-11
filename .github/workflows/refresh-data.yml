@@ -1,0 +1,44 @@
+name: Refresh Stock Data
+
+on:
+  schedule:
+    # ── Runs every 2 hours during US market hours (Mon-Fri) ──
+    # Market: 9:30 AM – 4 PM ET  →  13:30 – 20:00 UTC
+    # We run at 14:00, 16:00, 18:00, 20:00, 22:00 UTC (includes after-hours)
+    - cron: "0 14,16,18,20,22 * * 1-5"
+    # ── Plus once on weekends for pre-market context ──
+    - cron: "0 14 * * 0,6"
+  workflow_dispatch:          # manual trigger button in GitHub UI
+
+permissions:
+  contents: write             # needed to push updated data.js
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install yfinance
+        run: pip install yfinance
+
+      - name: Fetch latest market data
+        run: python fetch_data.py
+
+      - name: Commit & push if data changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.js
+          # Only commit if data.js actually changed
+          if git diff --cached --quiet; then
+            echo "No data changes — skipping commit"
+          else
+            git commit -m "📊 Auto-refresh market data $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
