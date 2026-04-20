@@ -15,9 +15,26 @@ import os as _os
 OUTPUT = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "data.js")
 
 TICKERS = [
-    "NVDA", "AAPL", "MSFT", "AMZN", "META",
-    "GOOGL", "TSLA", "LLY", "JPM", "AVGO",
-    "UNH", "CRM", "AMD", "COST", "PLTR",
+    # ── Mega-cap tech ──
+    "NVDA", "AAPL", "MSFT", "AMZN", "META", "GOOGL",
+    # ── High-growth / momentum ──
+    "TSLA", "PLTR", "COIN", "SHOP", "ARM", "SNOW",
+    # ── Semiconductors ──
+    "AVGO", "AMD", "INTC",
+    # ── Enterprise software ──
+    "CRM", "NOW", "PANW", "CRWD",
+    # ── Consumer / streaming ──
+    "NFLX", "SPOT", "DIS", "UBER", "ABNB",
+    # ── Fintech / payments ──
+    "V", "MA", "SQ", "GS",
+    # ── Healthcare ──
+    "LLY", "UNH", "ISRG",
+    # ── Industrials / defense ──
+    "BA", "LMT",
+    # ── Retail / consumer ──
+    "COST", "JPM",
+    # ── Airlines ──
+    "ELAL.TA",
 ]
 
 INDEX_MAP = {
@@ -39,10 +56,39 @@ SECTOR_ETFS = {
     "XLP": ("Consumer Defensive","#4ade80"),
     "SMH": ("Semiconductors",    "#22d3ee"),
     "IGV": ("Software",          "#e879f9"),
+    "HACK":("Cybersecurity",     "#f472b6"),
+    "ITA": ("Aerospace & Defense","#94a3b8"),
+    "IPAY":("Digital Payments",  "#fcd34d"),
 }
 
 # Catalysts / risks / bull-bear are qualitative — keep the hand-written ones
+# Override display ticker symbols (yf ticker → display label)
+TICKER_DISPLAY = {
+    "ELAL.TA": "ELAL",
+}
+
+# Override display names
+NAME_OVERRIDE = {
+    "ELAL.TA": "El Al Israel Airlines",
+}
+
 QUALITATIVE = {
+    "ELAL.TA": {
+        "catalysts": [
+            "Post-COVID traffic recovery — international routes at record capacity",
+            "Israel-Europe route monopoly on key corridors provides pricing power",
+            "Fleet modernization with Boeing 787 Dreamliners reducing fuel costs",
+            "Tourism rebound + diaspora travel creating structural demand floor",
+        ],
+        "risks": [
+            "Geopolitical risk — regional conflict directly impacts flight operations",
+            "High fuel cost exposure with limited hedging program",
+            "Labor disputes with unions historically disruptive",
+            "Competition from low-cost carriers on European routes",
+        ],
+        "bullCase": "Israel air travel normalizes post-conflict. ELAL captures full rebound as the flag carrier with government backing. Fleet upgrades drive margin recovery.",
+        "bearCase": "Prolonged regional instability grounds routes and collapses ticket volumes. High fixed costs + debt load create existential pressure.",
+    },
     "NVDA": {
         "catalysts": ["Blackwell B200 GPU ramp — 2-3x inference perf over H100","Sovereign AI infrastructure spend accelerating globally","Auto / robotics TAM expansion via DRIVE Thor","NIM microservices creating enterprise software moat"],
         "risks": ["Export controls tightening on China (~25% of data-center rev)","Customer concentration — top 4 hyperscalers ~50% rev","Elevated valuation leaves little room for execution misses","Custom ASIC competition from Google TPU, Amazon Trainium"],
@@ -132,6 +178,127 @@ QUALITATIVE = {
         "risks": ["Extreme valuation — high PE and P/S multiples","Government revenue concentration (~55% of total)","Stock-based compensation diluting shareholders 5%+/yr","Commercial growth must accelerate dramatically to justify valuation"],
         "bullCase": "AIP becomes the enterprise AI operating system. Commercial revenue grows 50%+ for 3 years. PLTR is the next Salesforce.",
         "bearCase": "Growth decelerates. SBC remains excessive. PE compresses dramatically even as business grows.",
+    },
+    # ── New additions ──
+    "NFLX": {
+        "catalysts": ["Ad-supported tier scaling rapidly — 40M+ monthly active users","Password sharing crackdown driving paid subscriber growth","Live sports (WWE, NFL) expanding addressable audience","Gaming and interactive content creating engagement moat"],
+        "risks": ["Subscriber saturation in developed markets","Content cost inflation as competition bids up talent","Ad tier cannibalization of premium subscriptions","Regulatory scrutiny on market dominance in streaming"],
+        "bullCase": "Ad tier reaches 100M users by 2027. Live sports + gaming diversify revenue to $50B+. NFLX becomes the global entertainment utility.",
+        "bearCase": "Subscriber growth stalls. Content costs spike. Ad revenue disappoints as advertisers fragment budgets.",
+    },
+    "V": {
+        "catalysts": ["Cross-border travel recovery driving premium transaction volumes","Value-added services (fraud detection, consulting) growing 20%+","Tap-to-pay / digital wallet adoption accelerating globally","New flows (B2B payments, remittances) expanding TAM beyond consumer"],
+        "risks": ["Regulatory cap on interchange fees (Credit Card Competition Act)","Real-time payment networks (FedNow, UPI) disintermediating cards","Fintech competition from Stripe, Adyen on merchant acceptance","Debit shift from credit in economic downturn compresses margins"],
+        "bullCase": "Global digital payments TAM grows to $20T. Visa captures growing share via new flows + value-added services. 15% EPS CAGR sustained.",
+        "bearCase": "Interchange regulation passes. Real-time payments bypass card rails. Revenue growth slows to single digits.",
+    },
+    "MA": {
+        "catalysts": ["Multi-rail strategy (cards, ACH, real-time payments) future-proofing","Services revenue (cybersecurity, analytics) growing 20%+ YoY","Emerging market penetration — cash-to-digital conversion","Open banking APIs creating new data monetization streams"],
+        "risks": ["Same regulatory risks as Visa — interchange caps","Slower cross-border recovery in some geographies","Fintech partnerships could turn into competition","Currency headwinds from strong dollar"],
+        "bullCase": "Mastercard becomes the 'network of networks' for all payment types. Services business hits $15B by 2027.",
+        "bearCase": "Regulation compresses take rates. Emerging market growth slower than expected. Fintech disintermediation.",
+    },
+    "DIS": {
+        "catalysts": ["Disney+ turning profitable — combined streaming approaching breakeven","Parks & Experiences resilient with pricing power","ESPN direct-to-consumer launch expanding sports streaming TAM","Franchise IP pipeline (Marvel, Star Wars, Pixar) unmatched"],
+        "risks": ["Linear TV decline accelerating — cord-cutting hitting ESPN","Streaming profitability still unproven at scale","Theme park macro sensitivity in recession scenario","Content quality inconsistency hurting brand perception"],
+        "bullCase": "Streaming hits profitability. ESPN DTC becomes sports super-app. Parks + IP = durable 10% earnings growth.",
+        "bearCase": "Streaming losses persist. Linear TV collapse accelerates. Parks hit by consumer recession.",
+    },
+    "SPOT": {
+        "catalysts": ["Gross margin expansion as podcast monetization scales","Price increases sticking — low churn elasticity","Audiobook marketplace creating high-margin content vertical","AI-powered personalization driving engagement and ad yields"],
+        "risks": ["Music label renegotiations could spike content costs","Ad market cyclicality affecting Spotify's ad-supported tier","Competition from Apple Music, YouTube Music, Amazon","Podcast investment ROI still unproven at scale"],
+        "bullCase": "Spotify becomes the audio everything platform. Gross margins hit 35%+. 1B MAU by 2028 with pricing power.",
+        "bearCase": "Label costs stay at 70%+. Podcast ad market disappoints. Growth decelerates in saturated markets.",
+    },
+    "SHOP": {
+        "catalysts": ["Shopify Payments + Capital creating fintech ecosystem","Enterprise upmarket push (Shopify Plus) driving ARPU growth","AI-powered Sidekick assistant reducing merchant churn","Offline POS expansion challenging Square in omnichannel"],
+        "risks": ["Amazon competition for merchant mindshare","Macro sensitivity — SMB merchants vulnerable in downturn","Take rate pressure from payment processing competition","International expansion execution risk"],
+        "bullCase": "Shopify becomes the commerce OS for millions of merchants. GMV hits $500B. Fintech takes revenue to $15B+.",
+        "bearCase": "SMB bankruptcies spike in recession. Amazon undercuts with Buy with Prime. Take rates compress.",
+    },
+    "COIN": {
+        "catalysts": ["Spot Bitcoin + Ethereum ETF custody driving institutional revenue","Base L2 blockchain creating developer ecosystem + fee revenue","Regulatory clarity (staking, tokenization) expanding product set","USDC partnership with Circle — stablecoin infrastructure moat"],
+        "risks": ["Crypto winter / Bitcoin drawdown directly crushes trading volume","SEC enforcement actions on altcoin listings","Competition from decentralized exchanges (Uniswap, dYdX)","Revenue concentration in volatile trading fees"],
+        "bullCase": "Crypto becomes mainstream asset class. Coinbase captures institutional custody + staking. Revenue diversifies to $8B+.",
+        "bearCase": "Crypto bear market returns. Regulatory crackdown limits product offerings. Trading fees collapse.",
+    },
+    "ARM": {
+        "catalysts": ["AI inference demand driving premium Armv9 royalty growth","Smartphone recovery cycle lifting licensing revenue","Data center CPU expansion (Neoverse) challenging x86","Automotive compute (ADAS, infotainment) long-term growth vector"],
+        "risks": ["Customer concentration — Apple ~15% of royalty revenue","RISC-V open-source alternative gaining traction in China","Qualcomm custom core dispute creating licensing uncertainty","Premium valuation assumes flawless execution across new TAMs"],
+        "bullCase": "ARM becomes the compute architecture for AI edge devices. Royalty rates expand 2x on Armv9. $10B+ revenue by 2028.",
+        "bearCase": "RISC-V erodes licensing base. Smartphone market stays flat. Data center penetration stalls.",
+    },
+    "SNOW": {
+        "catalysts": ["Cortex AI/ML features driving consumption growth","Data sharing marketplace (Snowflake Marketplace) network effects","Government cloud (FedRAMP) contracts expanding TAM","Product expansion into streaming, Apache Iceberg interop"],
+        "risks": ["Consumption model means revenue is inherently volatile","Competition from Databricks, BigQuery, Azure Synapse intensifying","Customer optimization reducing per-account spend","Net revenue retention rate declining from peak"],
+        "bullCase": "Snowflake becomes the data cloud standard. AI features drive consumption re-acceleration. $10B product revenue by 2029.",
+        "bearCase": "Consumption growth slows. Databricks wins AI workloads. Margins don't reach profitability targets.",
+    },
+    "UBER": {
+        "catalysts": ["Autonomous vehicle partnerships (Waymo, Aurora) preserving platform value","Advertising business reaching $1B+ run rate — high-margin","Uber One membership driving cross-platform retention","Delivery profitability improving — grocery + retail expansion"],
+        "risks": ["Autonomous driving could disintermediate Uber entirely","Driver supply / cost regulation (gig economy legislation)","Food delivery competition from DoorDash intensifying","Profitability still thin — macro downturn could swing to losses"],
+        "bullCase": "Uber becomes the global mobility + delivery super-app. AV integration adds margin. $10B+ EBITDA by 2027.",
+        "bearCase": "AV companies go direct-to-consumer. Gig economy regulation spikes driver costs. Profitability evaporates.",
+    },
+    "ABNB": {
+        "catalysts": ["Experiences & Adventures category creating new travel vertical","AI-powered trip planning increasing booking conversion","Supply growth in non-urban / international markets","Icon stays driving brand buzz and premium pricing"],
+        "risks": ["Regulatory crackdown on short-term rentals in major cities","Hotel competition (loyalty programs, price matching)","Macro sensitivity — travel is discretionary spending","Insurance / liability risk from property damage incidents"],
+        "bullCase": "Airbnb expands beyond lodging into full travel platform. 2B+ guest arrivals by 2028. Take rate expands on services.",
+        "bearCase": "City bans reduce supply. Economic downturn crushes travel demand. Hotels recapture share with better pricing.",
+    },
+    "SQ": {
+        "catalysts": ["Cash App ecosystem — 55M+ monthly actives, lending + investing","Square hardware + software creating omnichannel SMB moat","Afterpay BNPL integration driving consumer acquisition","Bitcoin / crypto revenue optionality"],
+        "risks": ["SMB merchant churn in economic downturn","Cash App monetization slower than expected","Competition from Stripe, Toast, Clover in payments","Crypto revenue is low-margin and volatile"],
+        "bullCase": "Cash App becomes a neobank for 100M users. Square ecosystem dominates SMB. Block hits $30B revenue with expanding margins.",
+        "bearCase": "SMB spending collapses. Cash App growth stalls. Afterpay integration fails to drive synergies.",
+    },
+    "GS": {
+        "catalysts": ["Investment banking recovery — M&A and IPO pipeline accelerating","Asset & wealth management pivot creating durable fee revenue","Trading desk excellence — fixed income + equities market share","Platform Solutions profitability improving after consumer exit"],
+        "risks": ["IB recovery slower than expected if macro deteriorates","Trading revenue inherently volatile and cyclical","Reputational risk from prior consumer banking missteps","Regulatory capital requirements limiting leverage"],
+        "bullCase": "M&A supercycle drives IB fees to record levels. AWM grows to $3T AUM. GS re-rates as a diversified financial.",
+        "bearCase": "IB stays depressed. Trading normalizes lower. Consumer exit costs linger.",
+    },
+    "NOW": {
+        "catalysts": ["AI-powered workflows (Now Assist) driving premium upsell","Federal government IT modernization contracts expanding","Platform consolidation — companies standardizing on ServiceNow","$15B+ revenue target by 2026 with 25%+ growth"],
+        "risks": ["Enterprise IT budget tightening in recession scenario","Competition from Microsoft, Salesforce in workflow automation","Premium valuation leaves no margin for growth deceleration","Large deal lumpiness creating quarterly volatility"],
+        "bullCase": "ServiceNow becomes the enterprise AI workflow platform. Revenue hits $20B by 2028. Operating margins expand to 35%+.",
+        "bearCase": "Growth decelerates to 15%. Microsoft Copilot cannibalizes workflow TAM. Multiple compresses sharply.",
+    },
+    "PANW": {
+        "catalysts": ["Platformization strategy — customers consolidating security vendors","Next-gen security (SASE, XDR, cloud security) driving ARR growth","AI-powered security operations (XSIAM) differentiation","Government cybersecurity mandates creating durable demand"],
+        "risks": ["Billings growth deceleration from platformization transition","Competition from CrowdStrike, Zscaler in specific verticals","Free cash flow conversion during platform transition period","Customer resistance to vendor lock-in"],
+        "bullCase": "PANW becomes the one-stop cybersecurity platform. ARR grows to $15B+. Platformization drives 80%+ gross margins.",
+        "bearCase": "Platformization cannibalizes near-term billings. Best-of-breed competitors win key verticals. Growth slows.",
+    },
+    "CRWD": {
+        "catalysts": ["Falcon platform module adoption — customers buying 7+ modules","Identity security (Falcon Identity) fastest-growing module","Cloud security capturing shift from on-prem to cloud workloads","AI-native architecture advantage vs. legacy security vendors"],
+        "risks": ["July 2024 outage aftermath — customer trust and legal liability","Valuation premium assumes sustained 30%+ growth","Competition from Microsoft Defender, SentinelOne, Palo Alto","Macro-driven IT budget cuts hitting security spend"],
+        "bullCase": "CrowdStrike becomes the Salesforce of cybersecurity. ARR hits $10B by 2028. Module adoption drives 80%+ gross margins.",
+        "bearCase": "Outage fallout causes customer churn. Microsoft bundles erode market. Growth slows to 20%.",
+    },
+    "INTC": {
+        "catalysts": ["Intel 18A process node — foundry competitiveness returning","CHIPS Act subsidies ($20B+) funding US fab expansion","AI PC cycle driving Core Ultra premium ASP uplift","Foundry services (IFS) winning external customers"],
+        "risks": ["Foundry execution risk — years behind TSMC on process","Data center GPU market lost to NVDA/AMD entirely","Cash burn from massive fab capex ($25B+/yr)","Market share losses continuing in server and client CPUs"],
+        "bullCase": "18A process works. IFS wins major foundry customers. Intel reclaims technology leadership by 2027. Massive re-rating.",
+        "bearCase": "Process delays continue. Foundry remains uncompetitive. Cash burn forces dividend cut. Server share hits single digits.",
+    },
+    "ISRG": {
+        "catalysts": ["da Vinci 5 system launch — next-gen multiport surgical robot","Procedure growth 15-20% YoY across expanding specialties","International expansion — China, India, emerging markets","Ion bronchoscopy platform creating new lung biopsy TAM"],
+        "risks": ["Premium valuation — 60x+ earnings","Competition from Medtronic Hugo, J&J Ottava, Asensus","Hospital capital budget constraints limiting system placements","Reimbursement pressure on robotic surgery procedures"],
+        "bullCase": "da Vinci 5 drives upgrade cycle + new specialties. Procedures grow 18% CAGR. ISRG maintains 80%+ market share in surgical robotics.",
+        "bearCase": "Competition erodes pricing power. Hospital budgets tighten. Procedure growth slows to single digits.",
+    },
+    "BA": {
+        "catalysts": ["737 MAX production ramp to 38+/month after safety resolution","Defense & Space backlog $60B+ providing revenue floor","Commercial aviation demand recovery — record order backlog","New leadership executing on quality and safety culture"],
+        "risks": ["Ongoing FAA scrutiny and production caps","Quality control issues damaging reputation and delivery timeline","Free cash flow negative until production normalizes","Supply chain constraints limiting ramp-up speed"],
+        "bullCase": "Production normalizes. 737 MAX deliveries hit 50/month. FCF turns strongly positive. BA re-rates as aviation duopoly.",
+        "bearCase": "Safety issues persist. Production stays capped. FCF remains negative. Defense margins compress.",
+    },
+    "LMT": {
+        "catalysts": ["Global defense spending surge — NATO countries hitting 2%+ GDP targets","F-35 program long-term revenue visibility ($2T lifetime value)","Hypersonic weapons and space contracts expanding TAM","Classified programs driving above-reported revenue growth"],
+        "risks": ["US defense budget politics — potential sequestration or cuts","Fixed-price contract losses on development programs","Supply chain inflation compressing margins","Talent shortage in aerospace engineering workforce"],
+        "bullCase": "Geopolitical tensions sustain 5-7% defense budget growth globally. F-35 deliveries accelerate. LMT hits $80B+ revenue by 2028.",
+        "bearCase": "Peace dividend returns. Budget cuts hit procurement. Fixed-price losses expand.",
     },
 }
 
@@ -345,10 +512,11 @@ def fetch_stock(ticker):
 
     # Get qualitative data
     q = QUALITATIVE.get(ticker, {})
+    display_ticker = TICKER_DISPLAY.get(ticker, ticker)
 
     return {
-        "ticker": ticker,
-        "name": info.get("shortName", info.get("longName", ticker)),
+        "ticker": display_ticker,
+        "name": NAME_OVERRIDE.get(ticker, info.get("shortName", info.get("longName", ticker))),
         "sector": sector,
         "price": round(price, 2) if price else 0,
         "change": change,
